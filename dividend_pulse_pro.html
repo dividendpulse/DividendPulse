@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dividend Pulse Dashboard – Pro Preview</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg-main: #0D0F12;
+      --bg-card: #121418;
+      --border-card: #1C1F24;
+      --text-main: #FFFFFF;
+      --text-soft: #D9D9D9;
+      --mint-glow: #00F5C8;
+      --mint-soft: #00CFA8;
+      --blue-glow: #00BFFF;
+      --row-bg: #2A2E35;
+      --row-hover: #3A3F47;
+      --profit-green: #22C55E;
+      --loss-red: #EF4444;
+      --accent-gold: #FACC15;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #151822 0, #050609 55%, #020308 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-title {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .brand-title h1 {
+      font-size: 24px;
+      letter-spacing: 0.08em;
+    }
+
+    .brand-title span {
+      font-size: 13px;
+      color: var(--text-soft);
+    }
+
+    .logo {
+      width: 64px;
+      height: 64px;
+      filter: drop-shadow(0 0 12px rgba(0, 245, 200, 0.35));
+    }
+
+    .logo svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .top-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .pill {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 245, 200, 0.4);
+      color: var(--mint-glow);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: linear-gradient(145deg, #101218, #0B0D12);
+      border: 1px solid var(--border-card);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .card-label {
+      font-size: 12px;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .card-value {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .card-sub {
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .table-card {
+      margin-top: 8px;
+    }
+
+    .pro-panel {
+      margin-top: 16px;
+      border-left: 2px solid rgba(250, 204, 21, 0.6);
+    }
+
+    .pro-badge {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent-gold);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    thead {
+      background: var(--bg-card);
+    }
+
+    th, td {
+      padding: 8px 10px;
+      text-align: left;
+    }
+
+    th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-soft);
+      border-bottom: 1px solid var(--border-card);
+    }
+
+    tbody tr {
+      background: var(--row-bg);
+      transition: background 0.15s ease;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #252932;
+    }
+
+    tbody tr:hover {
+      background: var(--row-hover);
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      background: var(--mint-soft);
+      color: #000;
+      transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    button:hover {
+      background: var(--mint-glow);
+      transform: translateY(-1px);
+      box-shadow: 0 0 12px rgba(0, 245, 200, 0.35);
+    }
+
+    button.secondary {
+      background: var(--row-bg);
+      color: var(--text-soft);
+    }
+
+    button.secondary:hover {
+      background: var(--row-hover);
+      box-shadow: 0 0 10px rgba(0, 191, 255, 0.35);
+    }
+
+    .income-positive {
+      color: var(--profit-green);
+    }
+
+    .income-negative {
+      color: var(--loss-red);
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .toggle-row input {
+      accent-color: var(--mint-glow);
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 100%;
+      height: 220px;
+      background: #101218;
+      border-radius: 12px;
+    }
+
+    @media (max-width: 900px) {
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+      .top-actions {
+        align-items: flex-start;
+      }
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .modal {
+      background: var(--bg-card);
+      border-radius: 16px;
+      border: 1px solid var(--border-card);
+      padding: 20px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      animation: modalIn 0.2s ease-out;
+    }
+
+    @keyframes modalIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .modal-header h2 {
+      font-size: 16px;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-soft);
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field label {
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .field input {
+      background: var(--row-bg);
+      border-radius: 8px;
+      border: 1px solid var(--border-card);
+      padding: 6px 8px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+      transition: border 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .field input:focus {
+      border-color: var(--mint-glow);
+      box-shadow: 0 0 0 1px rgba(0, 245, 200, 0.4);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="logo">
+          <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="120" cy="120" r="110" fill="#0D0F12" stroke="#1C1F24" stroke-width="4"/>
+            <defs>
+              <linearGradient id="gradMint" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00F5C8"/>
+                <stop offset="100%" stop-color="#00CFA8"/>
+              </linearGradient>
+            </defs>
+            <rect x="75" y="130" width="22" height="60" rx="6" fill="url(#gradMint)"/>
+            <rect x="109" y="110" width="22" height="80" rx="6" fill="url(#gradMint)"/>
+            <rect x="143" y="85" width="22" height="105" rx="6" fill="url(#gradMint)"/>
+            <path d="M75 130 C100 100, 140 90, 165 85" stroke="#00F5C8" stroke-width="6" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="brand-title">
+          <h1>DIVIDEND PULSE</h1>
+          <span>The calm way to track dividends.</span>
+        </div>
+      </div>
+      <div class="top-actions">
+        <div class="pill">Pulse Pro Preview</div>
+        <button id="btn-refresh-prices" class="secondary">Refresh Prices (Live API)</button>
+      </div>
+    </header>
+
+    <section class="metrics">
+      <div class="card">
+        <div class="card-label">Portfolio Value</div>
+        <div class="card-value" id="metric-portfolio">$0</div>
+        <div class="card-sub">Total market value of all positions.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Annual Dividends</div>
+        <div class="card-value" id="metric-annual">$0</div>
+        <div class="card-sub">Projected yearly dividend income.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Monthly Average</div>
+        <div class="card-value" id="metric-monthly">$0</div>
+        <div class="card-sub">Average dividends per month.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Forward Yield</div>
+        <div class="card-value" id="metric-yield">0%</div>
+        <div class="card-sub">Annual dividends / portfolio value.</div>
+      </div>
+    </section>
+
+    <section class="card table-card">
+      <div class="card-label">Positions</div>
+      <table id="positions-table">
+        <thead>
+          <tr>
+            <th>Ticker</th>
+            <th>Shares</th>
+            <th>Price</th>
+            <th>Div/Share</th>
+            <th>Freq</th>
+            <th>Annual</th>
+            <th>Monthly</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>VTI</td>
+            <td>10</td>
+            <td>200</td>
+            <td>3.00</td>
+            <td>Quarterly</td>
+            <td class="income-positive">$30.00</td>
+            <td>$2.50</td>
+            <td><button class="secondary btn-edit">Edit</button></td>
+          </tr>
+          <tr>
+            <td>VXUS</td>
+            <td>15</td>
+            <td>60</td>
+            <td>1.80</td>
+            <td>Quarterly</td>
+            <td class="income-positive">$27.00</td>
+            <td>$2.25</td>
+            <td><button class="secondary btn-edit">Edit</button></td>
+          </tr>
+          <tr>
+            <td>VNQ</td>
+            <td>8</td>
+            <td>90</td>
+            <td>4.00</td>
+            <td>Quarterly</td>
+            <td class="income-positive">$32.00</td>
+            <td>$2.67</td>
+            <td><button class="secondary btn-edit">Edit</button></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="actions">
+        <button id="btn-add">Add Position</button>
+      </div>
+
+      <div class="toggle-row">
+        <input type="checkbox" id="toggle-drip" />
+        <label for="toggle-drip">Enable DRIP projection (simple compounding, 5 years)</label>
+      </div>
+
+      <div class="card pro-panel" style="margin-top:12px;">
+        <div class="pro-badge">Pulse Pro Insight</div>
+        <div class="card-value" id="metric-drip">$0</div>
+        <div class="card-sub">
+          Estimated annual dividend income after 5 years with DRIP enabled.
+        </div>
+      </div>
+    </section>
+
+    <section class="charts-grid">
+      <div class="card">
+        <div class="card-label">Estimated Monthly Income</div>
+        <div class="card-sub">Based on current annual dividends divided across 12 months.</div>
+        <canvas id="incomeChart"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-label">Portfolio Allocation</div>
+        <div class="card-sub">Share of total portfolio value by ticker.</div>
+        <canvas id="allocationChart"></canvas>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h2>Edit Position</h2>
+        <button class="modal-close" id="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label for="field-ticker">Ticker</label>
+          <input id="field-ticker" type="text" placeholder="e.g. VTI" />
+        </div>
+        <div class="field">
+          <label for="field-shares">Shares</label>
+          <input id="field-shares" type="number" step="0.01" min="0" />
+        </div>
+        <div class="field">
+          <label for="field-price">Price</label>
+          <input id="field-price" type="number" step="0.01" min="0" />
+        </div>
+        <div class="field">
+          <label for="field-div">Dividend / Share</label>
+          <input id="field-div" type="number" step="0.01" min="0" />
+        </div>
+        <div class="field">
+          <label for="field-freq">Frequency (e.g. Quarterly)</label>
+          <input id="field-freq" type="text" placeholder="Quarterly" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="secondary" id="modal-cancel">Cancel</button>
+        <button id="modal-save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tableBody = document.querySelector("#positions-table tbody");
+    const metricPortfolio = document.getElementById("metric-portfolio");
+    const metricAnnual = document.getElementById("metric-annual");
+    const metricMonthly = document.getElementById("metric-monthly");
+    const metricYield = document.getElementById("metric-yield");
+    const metricDrip = document.getElementById("metric-drip");
+
+    const modalBackdrop = document.getElementById("modal-backdrop");
+    const modalClose = document.getElementById("modal-close");
+    const modalCancel = document.getElementById("modal-cancel");
+    const modalSave = document.getElementById("modal-save");
+
+    const fieldTicker = document.getElementById("field-ticker");
+    const fieldShares = document.getElementById("field-shares");
+    const fieldPrice = document.getElementById("field-price");
+    const fieldDiv = document.getElementById("field-div");
+    const fieldFreq = document.getElementById("field-freq");
+
+    const incomeCanvas = document.getElementById("incomeChart");
+    const allocCanvas = document.getElementById("allocationChart");
+    const incomeCtx = incomeCanvas.getContext("2d");
+    const allocCtx = allocCanvas.getContext("2d");
+
+    const toggleDrip = document.getElementById("toggle-drip");
+    const btnRefreshPrices = document.getElementById("btn-refresh-prices");
+
+    let editingRow = null;
+
+    function openModal(row) {
+      editingRow = row;
+      const cells = row.querySelectorAll("td");
+      fieldTicker.value = cells[0].textContent.trim();
+      fieldShares.value = cells[1].textContent.trim();
+      fieldPrice.value = cells[2].textContent.trim();
+      fieldDiv.value = cells[3].textContent.trim();
+      fieldFreq.value = cells[4].textContent.trim();
+      modalBackdrop.style.display = "flex";
+    }
+
+    function closeModal() {
+      modalBackdrop.style.display = "none";
+      editingRow = null;
+    }
+
+    function formatCurrency(value) {
+      return "$" + Number(value).toFixed(2);
+    }
+
+    function recalcMetrics() {
+      let totalValue = 0;
+      let totalAnnual = 0;
+      const allocations = [];
+
+      tableBody.querySelectorAll("tr").forEach(row => {
+        const cells = row.querySelectorAll("td");
+        const ticker = cells[0].textContent.trim();
+        const shares = Number(cells[1].textContent) || 0;
+        const price = Number(cells[2].textContent) || 0;
+        const divPerShare = Number(cells[3].textContent) || 0;
+
+        const positionValue = shares * price;
+        const annualIncome = shares * divPerShare;
+
+        totalValue += positionValue;
+        totalAnnual += annualIncome;
+
+        cells[5].textContent = formatCurrency(annualIncome);
+        cells[5].className = annualIncome >= 0 ? "income-positive" : "income-negative";
+        cells[6].textContent = formatCurrency(annualIncome / 12);
+
+        allocations.push({ ticker, value: positionValue });
+      });
+
+      metricPortfolio.textContent = formatCurrency(totalValue);
+      metricAnnual.textContent = formatCurrency(totalAnnual);
+      metricMonthly.textContent = formatCurrency(totalAnnual / 12);
+      metricYield.textContent = totalValue > 0
+        ? (totalAnnual / totalValue * 100).toFixed(2) + "%"
+        : "0%";
+
+      updateDripMetric(totalAnnual);
+      drawIncomeChart(totalAnnual);
+      drawAllocationChart(allocations, totalValue);
+    }
+
+    function attachEditButtons() {
+      tableBody.querySelectorAll(".btn-edit").forEach(btn => {
+        btn.onclick = () => {
+          const row = btn.closest("tr");
+          openModal(row);
+        };
+      });
+    }
+
+    document.getElementById("btn-add").addEventListener("click", () => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>NEW</td>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+        <td>Quarterly</td>
+        <td class="income-positive">$0.00</td>
+        <td>$0.00</td>
+        <td><button class="secondary btn-edit">Edit</button></td>
+      `;
+      tableBody.appendChild(row);
+      attachEditButtons();
+      recalcMetrics();
+    });
+
+    modalClose.addEventListener("click", closeModal);
+    modalCancel.addEventListener("click", closeModal);
+
+    modalSave.addEventListener("click", () => {
+      if (!editingRow) return;
+
+      const ticker = fieldTicker.value.trim() || "TICKER";
+      const shares = Number(fieldShares.value) || 0;
+      const price = Number(fieldPrice.value) || 0;
+      const divPerShare = Number(fieldDiv.value) || 0;
+      const freq = fieldFreq.value.trim() || "Quarterly";
+
+      const cells = editingRow.querySelectorAll("td");
+      cells[0].textContent = ticker;
+      cells[1].textContent = shares;
+      cells[2].textContent = price;
+      cells[3].textContent = divPerShare;
+      cells[4].textContent = freq;
+
+      recalcMetrics();
+      closeModal();
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && modalBackdrop.style.display === "flex") {
+        closeModal();
+      }
+    });
+
+    modalBackdrop.addEventListener("click", (e) => {
+      if (e.target === modalBackdrop) {
+        closeModal();
+      }
+    });
+
+    toggleDrip.addEventListener("change", () => {
+      recalcMetrics();
+    });
+
+    function updateDripMetric(currentAnnual) {
+      if (!toggleDrip.checked) {
+        metricDrip.textContent = formatCurrency(currentAnnual);
+        return;
+      }
+      const years = 5;
+      const growthRate = 0.05;
+      let projected = currentAnnual;
+      for (let i = 0; i < years; i++) {
+        projected *= (1 + growthRate);
+      }
+      metricDrip.textContent = formatCurrency(projected);
+    }
+
+    function drawIncomeChart(totalAnnual) {
+      const monthly = totalAnnual / 12;
+      const months = 12;
+      const width = incomeCanvas.width;
+      const height = incomeCanvas.height;
+
+      incomeCtx.clearRect(0, 0, width, height);
+
+      const padding = 30;
+      const chartWidth = width - padding * 2;
+      const chartHeight = height - padding * 2;
+
+      const maxValue = monthly || 1;
+      const barWidth = chartWidth / months * 0.6;
+      const gap = chartWidth / months * 0.4;
+
+      incomeCtx.fillStyle = "#FFFFFF";
+      incomeCtx.font = "12px system-ui";
+      incomeCtx.fillText("Monthly income (est.)", padding, padding - 10);
+
+      for (let i = 0; i < months; i++) {
+        const barHeight = chartHeight * (monthly / maxValue);
+        const x = padding + i * (barWidth + gap);
+        const y = padding + (chartHeight - barHeight);
+
+        incomeCtx.fillStyle = "#00F5C8";
+        incomeCtx.fillRect(x, y, barWidth, barHeight);
+      }
+
+      incomeCtx.strokeStyle = "#2A2E35";
+      incomeCtx.lineWidth = 1;
+      incomeCtx.strokeRect(padding, padding, chartWidth, chartHeight);
+    }
+
+    function drawAllocationChart(allocations, totalValue) {
+      const width = allocCanvas.width;
+      const height = allocCanvas.height;
+      allocCtx.clearRect(0, 0, width, height);
+
+      if (totalValue <= 0 || allocations.length === 0) {
+        allocCtx.fillStyle = "#FFFFFF";
+        allocCtx.font = "12px system-ui";
+        allocCtx.fillText("No data", width / 2 - 20, height / 2);
+        return;
+      }
+
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const radius = Math.min(width, height) / 2 - 20;
+
+      let startAngle = -Math.PI / 2;
+      const colors = ["#00F5C8", "#00BFFF", "#FACC15", "#22C55E", "#EF4444", "#A855F7"];
+
+      allocations.forEach((item, index) => {
+        const sliceAngle = (item.value / totalValue) * Math.PI * 2;
+        const endAngle = startAngle + sliceAngle;
+
+        allocCtx.beginPath();
+        allocCtx.moveTo(centerX, centerY);
+        allocCtx.arc(centerX, centerY, radius, startAngle, endAngle);
+        allocCtx.closePath();
+        allocCtx.fillStyle = colors[index % colors.length];
+        allocCtx.fill();
+
+        startAngle = endAngle;
+      });
+
+      allocCtx.font = "11px system-ui";
+      let legendY = 16;
+      allocations.forEach((item, index) => {
+        const pct = ((item.value / totalValue) * 100).toFixed(1) + "%";
+        allocCtx.fillStyle = colors[index % colors.length];
+        allocCtx.fillRect(10, legendY - 8, 10, 10);
+        allocCtx.fillStyle = "#FFFFFF";
+        allocCtx.fillText(item.ticker + " " + pct, 26, legendY);
+        legendY += 14;
+      });
+    }
+
+    btnRefreshPrices.addEventListener("click", async () => {
+      const API_KEY = "TSA36GWKHYDJ78WA";
+
+      async function fetchPrice(ticker) {
+        try {
+          const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${ticker}&apikey=${API_KEY}`;
+          const response = await fetch(url);
+          const data = await response.json();
+
+          if (data["Global Quote"] && data["Global Quote"]["05. price"]) {
+            return Number(data["Global Quote"]["05. price"]);
+          }
+          return null;
+        } catch (err) {
+          console.error("Error fetching price for", ticker, err);
+          return null;
+        }
+      }
+
+      const rows = tableBody.querySelectorAll("tr");
+
+      for (const row of rows) {
+        const cells = row.querySelectorAll("td");
+        const ticker = cells[0].textContent.trim();
+        const newPrice = await fetchPrice(ticker);
+        if (newPrice !== null) {
+          cells[2].textContent = newPrice.toFixed(2);
+        }
+      }
+
+      recalcMetrics();
+      alert("Prices updated using AlphaVantage live data.");
+    });
+
+    attachEditButtons();
+    recalcMetrics();
+  </script>
+</body>
+</html>

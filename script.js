@@ -269,4 +269,3 @@ positionsBody.addEventListener("click", (e) => {
 // Init
 loadData();
 rerenderAll();
-

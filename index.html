@@ -1,1 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DividendPulse Dashboard</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .input-section, .summary-section {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px;
+            width: 150px;
+        }
+
+        button {
+            padding: 8px 12px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            background: white;
+            border-collapse: collapse;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background: #333;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>DividendPulse Dashboard</h1>
+
+    <!-- Input Section -->
+    <div class="input-section">
+        <input id="ticker" type="text" placeholder="Ticker (AAPL)">
+        <input id="shares" type="number" placeholder="Shares">
+        <input id="price" type="number" placeholder="Price">
+        <input id="dividend" type="number" placeholder="Dividend">
+
+        <button id="addPositionBtn">Add Position</button>
+    </div>
+
+    <!-- Positions Table -->
+    <table id="positionsTable">
+        <thead>
+            <tr>
+                <th>Ticker</th>
+                <th>Shares</th>
+                <th>Price</th>
+                <th>Dividend</th>
+                <th>DRIP</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <!-- JS will insert rows here -->
+        </tbody>
+    </table>
+
+    <!-- Summary Section -->
+    <div class="summary-section">
+        <h2>Portfolio Summary</h2>
+        <p><strong>Total Value:</strong> <span id="totalValue">$0.00</span></p>
+        <p><strong>Total Annual Income:</strong> <span id="totalIncome">$0.00</span></p>
+    </div>
+
+    <!-- Link to JS -->
+    <script src="script.js"></script>
+
+</body>
+</html>
 

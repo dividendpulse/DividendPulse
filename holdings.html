@@ -1,1 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Holdings</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #0b1120;
+            color: #e5e7eb;
+            margin: 0;
+            padding: 2rem;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+        th, td {
+            padding: 0.6rem;
+            border-bottom: 1px solid #1f2937;
+        }
+        th {
+            background: #111827;
+        }
+        tr:nth-child(even) {
+            background: #020617;
+        }
+        input[type="text"], input[type="number"] {
+            width: 90%;
+            padding: 4px;
+            background: #1f2937;
+            border: 1px solid #374151;
+            color: #e5e7eb;
+        }
+        .total {
+            font-weight: bold;
+            background: #111827;
+        }
+        .save-status {
+            text-align: center;
+            color: #10b981;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
 
+<h1>My Holdings (Editable + Auto‑Save)</h1>
+<div class="save-status" id="saveStatus">All changes saved</div>
+
+<table id="holdingsTable">
+    <thead>
+        <tr>
+            <th>Ticker</th>
+            <th>Shares</th>
+            <th>Price</th>
+            <th>Total Value</th>
+        </tr>
+    </thead>
+    <tbody id="holdingsBody">
+        <!-- Rows will be loaded dynamically -->
+    </tbody>
+    <tfoot>
+        <tr class="total">
+            <td colspan="3">Portfolio Total</td>
+            <td id="portfolioTotal">$0.00</td>
+        </tr>
+    </tfoot>
+</table>
+
+<script>
+const defaultData = [
+    { ticker: "AAPL", shares: 50, price: 190.25 },
+    { ticker: "MSFT", shares: 30, price: 420.10 },
+    { ticker: "VTI", shares: 60, price: 260.40 },
+    { ticker: "SCHD", shares: 100, price: 78.50 }
+];
+
+function loadData() {
+    const saved = localStorage.getItem("holdingsData");
+    return saved ? JSON.parse(saved) : defaultData;
+}
+
+function saveData(data) {
+    localStorage.setItem("holdingsData", JSON.stringify(data));
+    document.getElementById("saveStatus").textContent = "Saved";
+    setTimeout(() => {
+        document.getElementById("saveStatus").textContent = "All changes saved";
+    }, 800);
+}
+
+function renderTable() {
+    const data = loadData();
+    const tbody = document.getElementById("holdingsBody");
+    tbody.innerHTML = "";
+
+    data.forEach((row, index) => {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td><input type="text" value="${row.ticker}" data-index="${index}" data-field="ticker"></td>
+            <td><input type="number" value="${row.shares}" data-index="${index}" data-field="shares"></td>
+            <td><input type="number" value="${row.price}" step="0.01" data-index="${index}" data-field="price"></td>
+            <td class="value">$0.00</td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+
+    recalc();
+}
+
+function recalc() {
+    const data = loadData();
+    let total = 0;
+
+    document.querySelectorAll("#holdingsBody tr").forEach((row, i) => {
+        const shares = parseFloat(data[i].shares) || 0;
+        const price = parseFloat(data[i].price) || 0;
+        const value = shares * price;
+        row.querySelector(".value").textContent = "$" + value.toFixed(2);
+        total += value;
+    });
+
+    document.getElementById("portfolioTotal").textContent = "$" + total.toFixed(2);
+}
+
+document.addEventListener("input", (e) => {
+    if (!e.target.dataset.field) return;
+
+    const data = loadData();
+    const index = e.target.dataset.index;
+    const field = e.target.dataset.field;
+
+    data[index][field] = e.target.value;
+    saveData(data);
+    recalc();
+});
+
+renderTable();
+</script>
+
+</body>
+</html>
